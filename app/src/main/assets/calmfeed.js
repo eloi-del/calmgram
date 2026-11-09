@@ -21,13 +21,20 @@
   // ---------------------------------------------------------------------------
   var SETTINGS_KEY = 'calmgram.settings';
   var OPTIONS = [
-    ['following', 'Feed des abonnements', 'Ouvrir et revenir sur « Suivi(e) » au lieu de « Pour vous »'],
-    ['feedReels', 'Reels dans le feed', 'Masquer les Reels entre les posts'],
-    ['suggested', 'Posts suggérés', 'Masquer « Suggestions pour vous »'],
-    ['ads', 'Publicités', 'Masquer les posts « Sponsorisée »'],
-    ['reelsTab', 'Onglet Reels', 'Masquer le bouton Reels et bloquer le flux sans fin'],
-    ['exploreGrid', 'Grille Explorer', 'La loupe ouvre seulement la recherche'],
-    ['reelSwipe', 'Swipe sur un Reel reçu', 'Un Reel ouvert reste seul, sans suivant']
+    ['following', 'Feed des abonnements', 'Ouvrir et revenir sur « Suivi(e) » au lieu de « Pour vous »',
+     'Following feed', 'Open and return to “Following” instead of “For you”'],
+    ['feedReels', 'Reels dans le feed', 'Masquer les Reels entre les posts',
+     'Reels in the feed', 'Hide Reels between posts'],
+    ['suggested', 'Posts suggérés', 'Masquer « Suggestions pour vous »',
+     'Suggested posts', 'Hide “Suggested for you”'],
+    ['ads', 'Publicités', 'Masquer les posts « Sponsorisée »',
+     'Ads', 'Hide “Sponsored” posts'],
+    ['reelsTab', 'Onglet Reels', 'Masquer le bouton Reels et bloquer le flux sans fin',
+     'Reels tab', 'Hide the Reels button and block the endless feed'],
+    ['exploreGrid', 'Grille Explorer', 'La loupe ouvre seulement la recherche',
+     'Explore grid', 'The search icon only opens search'],
+    ['reelSwipe', 'Swipe sur un Reel reçu', 'Un Reel ouvert reste seul, sans suivant',
+     'Swipe on a received Reel', 'An open Reel stays alone, with no next one']
   ];
 
   // Deux copies des réglages, toutes deux dans le stockage du site, sur le téléphone :
@@ -39,6 +46,13 @@
   var DB_NAME = 'calmgram';
   var DB_STORE = 'kv';
   var settings = loadSettings();
+
+  // Langue de l'interface : français si la page est en français, anglais sinon
+  // (Facebook et Instagram indiquent la langue dans <html lang>).
+  function tr(fr, en) {
+    var lang = (root.getAttribute('lang') || navigator.language || '').toLowerCase();
+    return lang.indexOf('fr') === 0 ? fr : en;
+  }
 
   function normalize(saved) {
     var result = {};
@@ -210,7 +224,7 @@
       row = appearance.parentElement.cloneNode(true);
       var svg = row.querySelector('svg');
       if (svg) { svg.setAttribute('viewBox', '0 0 24 24'); svg.innerHTML = ICON; }
-      setLabel(row, 'Mode calme');
+      setLabel(row, tr('Mode calme', 'Calm mode'));
       var link = row.querySelector('a');
       if (link) link.setAttribute('href', PANEL_HASH);
       appearance.parentElement.after(row);
@@ -225,7 +239,7 @@
       row.setAttribute('role', 'link');
       row.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;' +
                           'cursor:pointer;font-size:15px;color:inherit;';
-      row.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24">' + ICON + '</svg><span>Mode calme</span>';
+      row.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24">' + ICON + '</svg><span>' + tr('Mode calme', 'Calm mode') + '</span>';
       main.insertBefore(row, main.firstChild);
     }
     row.id = ROW_ID;
@@ -295,16 +309,17 @@
       '.row[aria-checked="true"] .sw::after{transform:translateX(18px)}' +
       '.note{padding:16px;color:' + c.sub + ';font-size:12px}' +
       '</style>' +
-      '<div class="page" role="dialog" aria-label="Mode calme">' +
-        '<div class="head"><button class="back" aria-label="Retour">' +
+      '<div class="page" role="dialog" aria-label="' + tr('Mode calme', 'Calm mode') + '">' +
+        '<div class="head"><button class="back" aria-label="' + tr('Retour', 'Back') + '">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>' +
-        '</button>Mode calme</div>' +
-        '<div class="sec">Masquer ou rediriger</div>' +
+        '</button>' + tr('Mode calme', 'Calm mode') + '</div>' +
+        '<div class="sec">' + tr('Masquer ou rediriger', 'Hide or redirect') + '</div>' +
         OPTIONS.map(function (o) {
           return '<button class="row" role="switch" data-key="' + o[0] + '" aria-checked="' + settings[o[0]] + '">' +
-                 '<span class="t"><b>' + o[1] + '</b><span>' + o[2] + '</span></span><span class="sw"></span></button>';
+                 '<span class="t"><b>' + tr(o[1], o[3]) + '</b><span>' + tr(o[2], o[4]) + '</span></span><span class="sw"></span></button>';
         }).join('') +
-        '<div class="note">Réglages enregistrés sur cet appareil. S\'ils sont effacés, tout revient en mode calme.</div>' +
+        '<div class="note">' + tr('Réglages enregistrés sur cet appareil. S\'ils sont effacés, tout revient en mode calme.',
+          'Settings are saved on this device. If they are cleared, everything goes back to calm mode.') + '</div>' +
       '</div>';
 
     shadow.querySelector('.back').addEventListener('click', function () {
@@ -385,7 +400,7 @@
     if (existing && (!match || existing.getAttribute('data-thread') !== match[1])) existing.remove();
     if (!match || document.getElementById(CALL_ID)) return;
     // Version ordinateur (écran large) : Instagram a déjà ses boutons.
-    if (document.querySelector('svg[aria-label="Appel vocal"]')) return;
+    if (document.querySelector('svg[aria-label="Appel vocal"], svg[aria-label="Audio call"], svg[aria-label="Voice call"]')) return;
     var info = document.querySelector('svg[aria-label="Informations sur la conversation"], svg[aria-label="Conversation information"]');
     var infoButton = info && info.closest('[role="button"]');
     if (!infoButton || !infoButton.parentElement) return;
@@ -394,7 +409,7 @@
     box.id = CALL_ID;
     box.setAttribute('data-thread', match[1]);
     box.style.cssText = 'display:flex;align-items:center;';
-    [[false, 'Appel vocal', PHONE_ICON], [true, 'Appel vidéo', VIDEO_ICON]].forEach(function (b) {
+    [[false, tr('Appel vocal', 'Voice call'), PHONE_ICON], [true, tr('Appel vidéo', 'Video call'), VIDEO_ICON]].forEach(function (b) {
       var button = document.createElement('div');
       button.setAttribute('role', 'button');
       button.setAttribute('aria-label', b[1]);
@@ -407,7 +422,7 @@
         e.stopPropagation();
         var fbid = findThreadFbid(match[1]);
         if (fbid) location.assign(callUrl(fbid, b[0]));
-        else alert('Appel indisponible : Instagram a changé sa page.');
+        else alert(tr('Appel indisponible : Instagram a changé sa page.', 'Call unavailable: Instagram changed its page.'));
       });
       box.appendChild(button);
     });

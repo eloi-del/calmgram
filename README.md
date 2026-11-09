@@ -21,6 +21,11 @@ Chaque comportement ci-dessous a son interrupteur. Tous sont activés par défau
 | Photos en message | sélecteur de fichiers Android |
 | Appels | boutons 📞 et 🎥 en haut d'une conversation : ouvrent la page d'appel d'Instagram (`/call/`) dans l'appli. Appels sortants seulement : l'appli fermée ne sonne pas. |
 
+
+![Le panneau Mode calme, ici en anglais](docs/calm-mode.jpg)
+
+Le panneau Mode calme s'affiche en anglais quand la page est en anglais, et en français sinon.
+
 ## Réglages
 
 - **Dans Instagram :** Profil → ⚙ → Paramètres et confidentialité → **Mode calme**, sous « Changer l'apparence ». Si Instagram retire cette ligne, « Mode calme » s'affiche en haut de la page.
@@ -69,6 +74,16 @@ Avec l'APK debug, ouvre `chrome://inspect` dans Chrome ou Chromium sur le PC, t�
    ```
    sdk.dir=/home/<toi>/Android/Sdk
    ```
+
+
+## Crédits
+
+Aucun code n'a été copié. Ces projets ont servi d'inspiration ou de contre-exemple :
+
+- [DM Only](https://github.com/safwanpp/dm-only) : charger le script dès le début de la page, retirer `; wv` du user agent, gérer l'envoi de fichiers, suivre les changements d'adresse, bloquer le swipe sur un Reel ouvert.
+- [NoReel](https://github.com/Kalbra/NoReel) : envoyer la loupe vers la page de recherche seule (`/explore/search/`).
+- [ReelBlocker](https://github.com/QuosaiAlqreini/ReelBlocker) : retirer aussi `Version/x.y` du user agent.
+- Les règles de masquage viennent de filtres uBlock Origin personnels, traduits en CSS et en JS.
 
 ## Avertissement
 
