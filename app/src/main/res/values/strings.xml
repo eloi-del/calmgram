@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Instagram</string>
+    <string name="shortcut_settings_short">Mode calme</string>
+    <string name="shortcut_settings_long">Mode calme</string>
+</resources>

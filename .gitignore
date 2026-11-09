@@ -1,0 +1,17 @@
+# Chemin du SDK Android, propre à chaque ordinateur
+local.properties
+# Fichiers de compilation
+.gradle/
+.kotlin/
+build/
+app/build/
+*.apk
+*.aab
+# Clés de signature : ne jamais publier
+*.jks
+*.keystore
+# Éditeurs
+.idea/
+*.iml
+.DS_Store
+maquette-*.jpg

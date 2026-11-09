@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Appui long sur l'icône : ouvre directement la page des réglages Calmgram. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="settings"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_settings_short"
+        android:shortcutLongLabel="@string/shortcut_settings_long">
+        <intent
+            android:action="fr.perso.calmgram.SETTINGS"
+            android:targetPackage="fr.perso.calmgram"
+            android:targetClass="fr.perso.calmgram.MainActivity" />
+    </shortcut>
+</shortcuts>
