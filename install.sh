@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
-# Compile Calmgram, l'installe sur le téléphone branché en USB, et l'ouvre.
-#   ./install.sh            -> ouvre l'appli
-#   ./install.sh reglages   -> ouvre directement la page des réglages Calmgram
+# Builds the calm Instagram app, installs it on the phone plugged in over USB, and opens it.
+#   ./install.sh            -> opens the app
+#   ./install.sh settings   -> opens the Calm mode panel directly
 set -euo pipefail
 cd "$(dirname "$0")"
 
 ./gradlew assembleDebug --console=plain -q
 
-echo "En attente du téléphone (débogage USB autorisé)..."
+echo "Waiting for the phone (USB debugging allowed)..."
 adb wait-for-usb-device
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 
-if [ "${1:-}" = "reglages" ]; then
-  adb shell am start -a fr.perso.calmgram.SETTINGS -n fr.perso.calmgram/.MainActivity
-else
-  adb shell am start -n fr.perso.calmgram/.MainActivity
-fi
+case "${1:-}" in
+  settings|reglages)
+    adb shell am start -a fr.perso.calmgram.SETTINGS -n fr.perso.calmgram/.MainActivity ;;
+  *)
+    adb shell am start -n fr.perso.calmgram/.MainActivity ;;
+esac

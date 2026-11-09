@@ -1,94 +1,112 @@
-# Calmgram
+# calmgram
 
-Instagram web dans une appli Android, sans Reels ni suggestions, qui s'ouvre sur le feed des abonnements.
+Instagram, without the endless scrolling. It's a lightweight Android app that opens the Instagram website and hides the parts built to keep you hooked:
 
-## Ce que fait l'appli
+- Opens on the feed of accounts you follow, not "For you"
+- Hides Reels, suggested posts and ads
+- Removes the Reels tab, and the search button opens search only, without the Explore grid
+- A Reel someone sends you still opens, but you can't swipe to the next one
+- Messages, photos and voice or video calls still work
+- Each filter has its own switch under "Calm mode" in Instagram's settings
 
-Chaque comportement ci-dessous a son interrupteur. Tous sont activés par défaut.
+It doesn't patch or modify the official app. It shows the regular website with display rules on top. The app never reads or stores your login, and sends no data anywhere.
 
-| Situation | Comportement |
+![The Calm mode panel](docs/calm-mode.jpg)
+
+## What it does
+
+Each behavior below has its own switch. All of them are on by default.
+
+| Situation | Behavior |
 |---|---|
-| Ouverture | `/?variant=following` (feed des abonnements) |
-| Bouton Accueil (`/`) | redirigé vers le feed des abonnements, sans rechargement |
-| Reels dans le feed | réduits à 1px (le scroll infini continue ; ancrage de scroll coupé pour éviter les retours en arrière) |
-| Posts « Suggestions pour vous » | réduits à 1px |
-| Publicités (étiquette « Sponsorisée ») | réduites à 1px, dans les deux feeds |
-| Bouton Reels de la barre du bas | masqué |
-| `/reels/` et `/reels/audio/…` | redirigés vers le feed |
-| `/reels/ID` (flux swipable) | redirigé vers `/reel/ID` (Reel seul, pas de swipe) |
-| Explorer `/explore/` | redirigé vers `/explore/search/` (recherche seule, sans grille), sans rechargement |
-| Liens externes | ouverts dans le navigateur |
-| Photos en message | sélecteur de fichiers Android |
-| Appels | boutons 📞 et 🎥 en haut d'une conversation : ouvrent la page d'appel d'Instagram (`/call/`) dans l'appli. Appels sortants seulement : l'appli fermée ne sonne pas. |
+| Opening the app | `/?variant=following` (feed of accounts you follow) |
+| Home button (`/`) | Redirected to the following feed, without reloading |
+| Reels in the feed | Collapsed to 1px. Infinite scroll keeps loading, and scroll anchoring is turned off so the page doesn't jump back. |
+| "Suggested for you" posts | Collapsed to 1px |
+| Ads ("Sponsored" label) | Collapsed to 1px, in both feeds |
+| Reels button in the bottom bar | Hidden |
+| `/reels/` and `/reels/audio/…` | Redirected to the feed |
+| `/reels/ID` (swipeable feed) | Redirected to `/reel/ID` (single Reel, no swipe) |
+| Explore `/explore/` | Redirected to `/explore/search/` (search only, no grid), without reloading |
+| External links | Opened in your browser |
+| Photos in messages | Android file picker |
+| Calls | 📞 and 🎥 buttons at the top of a conversation open Instagram's call page (`/call/`) in the app. Outgoing calls only: the app doesn't ring when it's closed. |
 
+## Settings
 
-![Le panneau Mode calme, ici en anglais](docs/calm-mode.jpg)
+- **In Instagram:** Profile → ⚙ → Settings and privacy → **Calm mode**, below "Switch appearance". If Instagram removes that row, "Calm mode" appears at the top of the page instead.
+- **Shortcut:** long-press the app icon → **Calm mode**.
+- The panel is in English when Instagram is in English, and in French otherwise.
+- Hiding or showing something applies right away. A redirect applies on the next tap.
+- Settings are saved in the Instagram site's storage on the phone. If they're cleared, everything goes back to calm mode.
+- On the phone, the app is named "Instagram" (package `fr.perso.calmgram`, with its own icon).
+- Dark mode is Instagram's own: Settings → Switch appearance.
 
-Le panneau Mode calme s'affiche en anglais quand la page est en anglais, et en français sinon.
+## What's inside
 
-## Réglages
+- `app/src/main/assets/calmfeed.js`: all the page rules. This is the file to fix when Instagram changes.
+- `app/src/main/java/fr/perso/calmgram/MainActivity.kt`: the WebView.
+- Permissions: Internet, plus microphone and camera for calls. Android asks for them on the first call, and the app only grants them to the page on `https://www.instagram.com/call/`, never anywhere else.
+- The call buttons read the conversation's call ID from the page's internal data. If Instagram changes that data, a tap shows "Call unavailable" and the rest of the app keeps working.
 
-- **Dans Instagram :** Profil → ⚙ → Paramètres et confidentialité → **Mode calme**, sous « Changer l'apparence ». Si Instagram retire cette ligne, « Mode calme » s'affiche en haut de la page.
-- **Raccourci :** appui long sur l'icône → **Mode calme**.
-- L'appli s'appelle « Instagram » sur le téléphone (paquet `fr.perso.calmgram`, icône à elle).
-- Masquer ou afficher un élément s'applique immédiatement. Une redirection s'applique au prochain tap.
-- Les réglages sont gardés dans le stockage du site Instagram, sur le téléphone. S'ils sont effacés, tout revient en mode calme.
-- Le thème sombre est celui d'Instagram : Paramètres → Changer l'apparence.
+**Your login:** the login page is Instagram's own. There is no bridge between the page and the app (`addJavascriptInterface` isn't used), so the app can't read what you type. `calmfeed.js` only reads the page address, the text of feed posts and its own settings. On the settings page, it adds the Calm mode row without reading anything. The WebView keeps the session cookie in the app's private data, never your password.
 
-## Ce qu'il y a dedans
+## Build and install
 
-- `app/src/main/assets/calmfeed.js` : toutes les règles. C'est le fichier à corriger quand Instagram change.
-- `app/src/main/java/fr/perso/calmgram/MainActivity.kt` : la WebView.
-- Permissions : Internet, et micro + caméra pour les appels. Android les demande au premier appel ; l'appli ne les donne à la page que sur `https://www.instagram.com/call/`, jamais ailleurs.
-- Les boutons d'appel lisent le numéro d'appel de la conversation dans les données internes de la page. Si Instagram change ces données, un tap affiche « Appel indisponible » : le reste de l'appli n'est pas touché.
+Requirements: Java 17 and the Android SDK (see below).
 
-**Ton identifiant :** la page de connexion est celle d'Instagram. Il n'existe aucun pont entre la page et l'appli (`addJavascriptInterface` n'est pas utilisé), donc l'appli ne peut pas lire ce que tu tapes. `calmfeed.js` lit seulement l'adresse de la page, le texte des posts du feed et ses propres réglages. Sur la page de paramètres, il ajoute la ligne Calmgram sans rien lire. La WebView garde le cookie de session dans les données privées de l'appli, pas le mot de passe.
-
-## Compiler et installer
-
-Prérequis : Java 17 et le SDK Android (voir plus bas).
-
-Téléphone branché, débogage USB autorisé :
+With the phone plugged in and USB debugging allowed:
 
 ```bash
 ./install.sh
 ```
 
-Ce script compile l'appli, attend le téléphone, l'installe et l'ouvre. `./install.sh reglages` ouvre directement les réglages.
+This builds the app, waits for the phone, installs the app and opens it. To open the Calm mode panel directly:
 
-## Déboguer sur le téléphone
+```bash
+./install.sh settings
+```
 
-Avec l'APK debug, ouvre `chrome://inspect` dans Chrome ou Chromium sur le PC, téléphone branché : tu as la console et l'inspecteur de la page Instagram dans l'appli.
+After a build, Gradle stays in memory in the background. On a computer with little RAM, stop it:
 
-## Installer les outils (une seule fois)
+```bash
+./gradlew --stop
+```
 
-1. Java 17 :
+## Debug on the phone
+
+With the debug APK installed and the phone plugged in, open `chrome://inspect` in Chrome or Chromium on the computer. You get the console and inspector for the Instagram page inside the app.
+
+## Install the tools (once)
+
+1. Java 17:
 
    ```bash
    sudo apt install openjdk-17-jdk-headless
    ```
 
-2. Le SDK Android, installé en ligne de commande dans `~/Android/Sdk` (Android Studio n'est pas nécessaire). Il faut accepter les licences de Google avec `sdkmanager --licenses`.
-3. `local.properties` à la racine du projet :
+2. The Android SDK, installed from the command line in `~/Android/Sdk` (Android Studio isn't needed). Accept Google's licenses with `sdkmanager --licenses`.
+3. A `local.properties` file at the root of the project:
 
    ```
-   sdk.dir=/home/<toi>/Android/Sdk
+   sdk.dir=/home/<you>/Android/Sdk
    ```
 
+## Credits
 
-## Crédits
+No code was copied. These projects served as inspiration or as examples of what to avoid:
 
-Aucun code n'a été copié. Ces projets ont servi d'inspiration ou de contre-exemple :
+- [DM Only](https://github.com/safwanpp/dm-only): loading the script at the very start of the page, removing `; wv` from the user agent, handling file uploads, following address changes, blocking the swipe on an open Reel.
+- [NoReel](https://github.com/Kalbra/NoReel): sending the search button to the search-only page (`/explore/search/`).
+- [ReelBlocker](https://github.com/QuosaiAlqreini/ReelBlocker): also removing `Version/x.y` from the user agent.
+- The hiding rules come from personal uBlock Origin filters, translated into CSS and JS.
 
-- [DM Only](https://github.com/safwanpp/dm-only) : charger le script dès le début de la page, retirer `; wv` du user agent, gérer l'envoi de fichiers, suivre les changements d'adresse, bloquer le swipe sur un Reel ouvert.
-- [NoReel](https://github.com/Kalbra/NoReel) : envoyer la loupe vers la page de recherche seule (`/explore/search/`).
-- [ReelBlocker](https://github.com/QuosaiAlqreini/ReelBlocker) : retirer aussi `Version/x.y` du user agent.
-- Les règles de masquage viennent de filtres uBlock Origin personnels, traduits en CSS et en JS.
+See also [calmbook](https://github.com/eloi-del/calmbook), the same idea for Facebook.
 
-## Avertissement
+## Disclaimer
 
-Projet personnel, sans lien avec Meta, qui n'a ni approuvé ni vérifié ce projet. Instagram et Facebook sont des marques de Meta. L'appli affiche le site web officiel et y ajoute seulement des règles d'affichage. Elle ne modifie pas l'appli officielle, ne lit pas ton identifiant et n'envoie rien ailleurs. Utilise-la à tes risques, dans le respect des conditions d'utilisation de Meta.
+Personal project, not affiliated with Meta, which has neither approved nor reviewed it. Instagram and Facebook are trademarks of Meta. The app shows the official website and only adds display rules on top. It doesn't modify the official app, doesn't read your login and doesn't send anything anywhere. Use it at your own risk and in line with Meta's terms of use.
 
-## Licence
+## License
 
-MIT : voir [LICENSE](LICENSE).
+MIT: see [LICENSE](LICENSE).
